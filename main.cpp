@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <iomanip>
 using namespace std;
 
 typedef struct
@@ -49,12 +50,19 @@ typedef struct
         }
         else
         {
-            cout << "Matriz de " << this->nm_matriz << endl;
+            cout << "Matriz de " << this->nm_matriz << ":" << endl;
+            cout << right << setw(2) << right << setw(2) << "0" << right << setw(2) << "|";
+            for (int i = 1; i <= this->nr_colunas; i++)
+            {
+                cout << right << setw(2) << i << right << setw(2);
+            }
+            cout << endl;
             for (int i = 0; i < this->nr_linhas; i++)
             {
+                cout << right << setw(2) << i + 1 << right << setw(2) << "|";
                 for (int j = 0; j < this->nr_colunas; j++)
                 {
-                    cout << this->matriz[i][j] << " ";
+                    cout << right << setw(2) << this->matriz[i][j] << right << setw(2);
                 }
                 cout << endl;
             }
@@ -140,7 +148,7 @@ typedef struct
 
     void gerar_matriz_adjacencias()
     {
-        cout << "Gerando matriz de adjacencias" << endl;
+        // cout << "Gerando matriz de adjacencias" << endl;
         this->matriz_adj.instanciar(this->vertice, this->vertice);
         // insere os valores da matriz de ligação na matriz de adjacências
         for (int i = 0; i < this->matriz_ligacao.nr_linhas; i++)
@@ -152,7 +160,7 @@ typedef struct
     }
     void gerar_matriz_incidencias()
     {
-        cout << "Gerando matriz de incidencias" << endl;
+        // cout << "Gerando matriz de incidencias" << endl;
         this->matriz_inc.instanciar(this->aresta, this->vertice);
         // insere os valores da matriz de ligação na matriz de incidências
         for (int i = 0; i < this->matriz_ligacao.nr_linhas; i++)
