@@ -81,6 +81,14 @@ typedef struct
     Matriz matriz_adj;
     Matriz matriz_inc;
 
+    bool is_pseudog = false;
+    bool is_multig = false;
+    bool is_nulo = false;
+    bool is_vazio = false;
+    bool is_trivial = false;
+    bool is_conexo = true;
+    bool is_completo = true;
+
     void ler_grafo_de_arquivo(string nome, string nm_arquivo)
     {
         this->nm_grafo = nome;
@@ -184,7 +192,140 @@ typedef struct
         this->matriz_ligacao.imprimir_matriz();
         this->matriz_adj.imprimir_matriz();
         this->matriz_inc.imprimir_matriz();
-    };
+    }
+    void caract_laco()
+    {
+        int cont = 0;
+        for (int i = 0; i < this->vertice; i++)
+        {
+            if (this->matriz_adj.matriz[i][i] != 0)
+            {
+                cont++;
+            }
+        }
+        cout << "lacos encontrados: " << cont << endl;
+
+        if (cont != 0)
+        {
+
+            if (cont == this->vertice)
+            {
+                cout << "E um grafo reflexivo " << endl;
+            }
+            is_pseudog = true;
+        }
+    }
+
+    void caract_arParalela()
+    {
+        int a = 0, b = 0, cont = 0;
+
+        for (int j = 0; j < this->matriz_ligacao.nr_linhas; j++)
+        {
+            a = this->matriz_ligacao.matriz[j][0];
+            b = this->matriz_ligacao.matriz[j][1];
+            for (int i = j + 1; i < this->matriz_ligacao.nr_linhas; i++)
+            {
+                if ((this->matriz_ligacao.matriz[i][0] == a && this->matriz_ligacao.matriz[i][1] == b) || (this->matriz_ligacao.matriz[i][0] == b && this->matriz_ligacao.matriz[i][1] == a))
+                {
+                    cont++;
+                    cout << "arestas paralelas: " << a << " - " << b << endl;
+                    this->is_multig = true;
+                }
+            }
+        }
+        cout << "numero de arestas paralelas: " << cont << endl;
+    }
+    void is_simples()
+    {
+
+        if ((!this->is_multig) || (!this->is_pseudog))
+        {
+            cout << "E um grafo simples" << endl;
+        }
+    }
+    void vazio_nulo_trivial()
+    {
+        if (this->vertice == 0)
+        {
+            this->is_nulo = true;
+        }
+        else if (this->vertice == 1)
+        {
+            this->is_trivial = true;
+        }
+        if (this->aresta == 0)
+        {
+            this->is_vazio = true;
+        }
+    }
+    void completo()
+    {
+        int mat = 0;
+        mat = (this->vertice * (this->vertice - 1)) / 2;
+        cout << "mat " << mat << endl;
+        if ((!is_pseudog || !is_multig) && (this->vertice >= mat))
+        {
+        }
+        for (int i = 0; i < this->matriz_adj.nr_linhas; i++)
+        {
+            for (int j = 0; j < this->matriz_adj.nr_colunas; j++)
+            {
+                if ((i != j) && (this->matriz_adj.matriz[i][j] != 1))
+                {
+                    this->is_completo = false;
+                }
+            }
+        }
+
+        if (is_pseudog || is_multig)
+        {
+        }
+    }
+    void conexividade()
+    {
+        int aux = 0;
+        bool encontrei = false;
+        int *vet = new int[this->vertice];
+        for (int a = 0; a < this->vertice; a++)
+        {
+            vet[a] = a + 1;
+        }
+        while (aux < this->vertice)
+        {
+            for (int i = 0; i < this->matriz_ligacao.nr_linhas; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (this->matriz_ligacao.matriz[i][j] == vet[aux])
+                    {
+                        vet[aux] = 0;
+                        aux++;
+                        j = 0;
+                        i = 0;
+                    }
+                }
+            }
+            aux++;
+        }
+        for (int i = 0; i < this->vertice; i++)
+        {
+            if (vet[i] != 0)
+            {
+                this->is_conexo = false;
+                cout << "vertice desconexo: " << vet[i] << endl;
+            }
+        }
+    }
+    void caracteristicas_grafo()
+    {
+        this->caract_laco();
+        this->caract_arParalela();
+        this->is_simples();
+        this->vazio_nulo_trivial();
+        this->conexividade();
+        this->completo();
+    }
     void liberar_memoria()
     {
         this->matriz_adj.liberar_memoria();
@@ -206,6 +347,6 @@ int main(int argc, char *argv[])
     grafo.ler_grafo_de_arquivo("g1", "./grafo.txt");
     grafo.imprime_grafo();
     // grafo.matriz_ligacao.for_each(iterador);
-    grafo.liberar_memoria();
+    grafo.caracteristicas_grafo();
     return 0;
 }
